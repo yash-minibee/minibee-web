@@ -259,8 +259,8 @@ export default function Contact() {
           <div className="glass border border-white/[0.08] rounded-2xl overflow-hidden h-64 flex items-center justify-center">
             <div className="text-center">
               <MapPin size={32} className="text-orange-500 mx-auto mb-3" />
-              <p className="text-white font-semibold">Mumbai, Maharashtra, India</p>
-              <p className="text-sm text-[#71717a] mt-1">Remote-first company · Global delivery</p>
+              <p className="text-white font-semibold">1101, R.K. Empire, Rajkot, Gujarat, India</p>
+              <p className="text-sm text-[#71717a] mt-1">near Mavdi Circle · Rajkot 360004</p>
             </div>
           </div>
         </div>
