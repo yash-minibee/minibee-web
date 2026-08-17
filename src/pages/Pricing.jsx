@@ -1,16 +1,24 @@
-import { useState, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, useInView, AnimatePresence } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Zap, Check, X, ChevronDown, Star, Users, ShoppingCart, Share2 } from 'lucide-react'
 import { SectionHeader } from '../components/common/SectionHeader'
-import { pricingPlans, featureComparison, pricingAddons } from '../data/pricing'
 import { faqs } from '../data/faqs'
+import { api } from '../hooks/useAdminApi'
+
+// Icon map for addons — keyed by icon_key stored in DB
+const ADDON_ICONS = {
+  'extra-agent':    <Users size={20} />,
+  'shopify-store':  <ShoppingCart size={20} />,
+  'bot-trigger':    <Zap size={20} />,
+  'social-channels':<Share2 size={20} />,
+}
 
 function PricingCard({ plan, isYearly, isINR }) {
-  const price = isINR 
+  const price = isINR
     ? (isYearly ? plan.inrYearlyPrice : plan.inrMonthlyPrice)
-    : (isYearly ? plan.yearlyPrice : plan.monthlyPrice);
-  const symbol = isINR ? '₹' : '$';
+    : (isYearly ? plan.yearlyPrice : plan.monthlyPrice)
+  const symbol = isINR ? '₹' : '$'
 
   return (
     <motion.div
@@ -89,6 +97,52 @@ export default function Pricing() {
   const ref = useRef(null)
   const inView = useInView(ref, { once: true, margin: '-80px' })
 
+  // All data from DB
+  const [plans, setPlans] = useState([])
+  const [comparison, setComparison] = useState([])
+  const [addons, setAddons] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    Promise.all([
+      api.pricing.list(),
+      api.comparison.list(),
+      api.addons.list(),
+    ])
+      .then(([plansRes, compRes, addonsRes]) => {
+        if (plansRes.success) {
+          setPlans(plansRes.data.map(item => ({
+            id:             item.id,
+            name:           item.name,
+            tagline:        item.tagline,
+            monthlyPrice:   item.monthly_usd  ?? null,
+            yearlyPrice:    item.yearly_usd   ?? null,
+            inrMonthlyPrice:item.monthly_inr  ?? null,
+            inrYearlyPrice: item.yearly_inr   ?? null,
+            popular:        Boolean(item.popular),
+            cta:            item.cta,
+            href:           item.href,
+            features:       Array.isArray(item.features)     ? item.features     : [],
+            notIncluded:    Array.isArray(item.not_included)  ? item.not_included : [],
+          })))
+        }
+        if (compRes.success) {
+          setComparison(compRes.data.map(item => ({
+            feature:    item.feature,
+            starter:    item.starter    === 'true' ? true : item.starter    === 'false' ? false : item.starter,
+            growth:     item.growth     === 'true' ? true : item.growth     === 'false' ? false : item.growth,
+            premium:    item.premium    === 'true' ? true : item.premium    === 'false' ? false : item.premium,
+            enterprise: item.enterprise === 'true' ? true : item.enterprise === 'false' ? false : item.enterprise,
+          })))
+        }
+        if (addonsRes.success) {
+          setAddons(addonsRes.data)
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
+
   return (
     <>
       {/* Hero */}
@@ -111,7 +165,7 @@ export default function Pricing() {
 
       {/* Toggles */}
       <section className="pb-8 flex flex-col items-center gap-6">
-        <button 
+        <button
           onClick={() => setIsINR(!isINR)}
           className="relative flex items-center justify-center p-1 rounded-full border border-orange-500/20 bg-orange-500/10 shadow-[0_0_15px_rgba(248,90,34,0.05)] cursor-pointer outline-none"
         >
@@ -128,7 +182,7 @@ export default function Pricing() {
           </span>
         </button>
 
-        <button 
+        <button
           onClick={() => setIsYearly(!isYearly)}
           className="flex items-center justify-center gap-4 cursor-pointer outline-none"
         >
@@ -150,76 +204,86 @@ export default function Pricing() {
       {/* Pricing Cards */}
       <section className="pb-20 " ref={ref}>
         <div className="container-custom">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-8">
-            {pricingPlans.map((plan, i) => (
-              <motion.div
-                key={plan.id}
-                initial={{ opacity: 0, y: 30 }}
-                animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ delay: i * 0.08 }}
-                className="h-full"
-              >
-                <PricingCard plan={plan} isYearly={isYearly} isINR={isINR} />
-              </motion.div>
-            ))}
-          </div>
+          {loading ? (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-8">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="h-[480px] rounded-2xl border border-white/[0.06] bg-[#111113] animate-pulse" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-8">
+              {plans.map((plan, i) => (
+                <motion.div
+                  key={plan.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={inView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ delay: i * 0.08 }}
+                  className="h-full"
+                >
+                  <PricingCard plan={plan} isYearly={isYearly} isINR={isINR} />
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
       {/* Add-ons Section */}
       <section className="pb-20">
         <div className="container-custom">
-          <SectionHeader 
-            badge="Boost Your Plan" 
-            title="Optional" 
-            titleHighlight="Add-ons." 
+          <SectionHeader
+            badge="Boost Your Plan"
+            title="Optional"
+            titleHighlight="Add-ons."
             subtitle="Customize your experience with additional features tailored to your needs."
           />
-          
+
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
-            {pricingAddons.map((addon) => {
-              const hasPrice = addon.priceUSD !== null;
-              const price = isINR ? addon.priceINR : addon.priceUSD;
-              const currencySymbol = isINR ? '₹' : '$';
-              
-              return (
-                <motion.div
-                  key={addon.id}
-                  whileHover={{ y: -4, scale: 1.01 }}
-                  className="glass border border-white/[0.08] bg-[#111113] rounded-2xl p-6 flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center mb-4 text-orange-400">
-                      {addon.id === 'extra-agent' && <Users size={20} />}
-                      {addon.id === 'shopify-store' && <ShoppingCart size={20} />}
-                      {addon.id === 'bot-trigger' && <Zap size={20} />}
-                      {addon.id === 'social-channels' && <Share2 size={20} />}
-                    </div>
-                    <h4 className="text-lg font-bold text-white mb-2">{addon.name}</h4>
-                    <p className="text-xs text-[#71717a] leading-relaxed mb-6">{addon.description}</p>
-                  </div>
-                  
-                  <div className="pt-4 border-t border-white/[0.04] flex items-end justify-between">
-                    <div>
-                      {hasPrice ? (
-                        <div className="flex items-end gap-1">
-                          <span className="text-2xl font-black text-white">{currencySymbol}{price}</span>
-                          <span className="text-[10px] text-[#71717a] mb-1 font-semibold">/ {addon.period}</span>
+            {loading
+              ? [...Array(4)].map((_, i) => (
+                  <div key={i} className="h-48 rounded-2xl border border-white/[0.06] bg-[#111113] animate-pulse" />
+                ))
+              : addons.map((addon) => {
+                  const hasPrice = addon.price_usd !== null && addon.price_usd !== undefined
+                  const price = isINR ? addon.price_inr : addon.price_usd
+                  const currencySymbol = isINR ? '₹' : '$'
+
+                  return (
+                    <motion.div
+                      key={addon.id}
+                      whileHover={{ y: -4, scale: 1.01 }}
+                      className="glass border border-white/[0.08] bg-[#111113] rounded-2xl p-6 flex flex-col justify-between"
+                    >
+                      <div>
+                        <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center mb-4 text-orange-400">
+                          {ADDON_ICONS[addon.icon_key] ?? <Zap size={20} />}
                         </div>
-                      ) : (
-                        <div className="flex flex-col">
-                          <span className="text-lg font-bold text-white">Custom</span>
-                          <span className="text-[9px] text-[#71717a] font-semibold">{addon.period} Pricing</span>
+                        <h4 className="text-lg font-bold text-white mb-2">{addon.name}</h4>
+                        <p className="text-xs text-[#71717a] leading-relaxed mb-6">{addon.description}</p>
+                      </div>
+
+                      <div className="pt-4 border-t border-white/[0.04] flex items-end justify-between">
+                        <div>
+                          {hasPrice ? (
+                            <div className="flex items-end gap-1">
+                              <span className="text-2xl font-black text-white">{currencySymbol}{price}</span>
+                              <span className="text-[10px] text-[#71717a] mb-1 font-semibold">/ {addon.period}</span>
+                            </div>
+                          ) : (
+                            <div className="flex flex-col">
+                              <span className="text-lg font-bold text-white">Custom</span>
+                              <span className="text-[9px] text-[#71717a] font-semibold">{addon.period} Pricing</span>
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                    <Link to="/contact" className="text-xs font-bold text-[#a1a1aa] hover:text-white flex items-center gap-1 transition-colors">
-                      Inquire <ArrowRight size={12} />
-                    </Link>
-                  </div>
-                </motion.div>
-              );
-            })}
+                        <Link to="/contact" className="text-xs font-bold text-[#a1a1aa] hover:text-white flex items-center gap-1 transition-colors">
+                          Inquire <ArrowRight size={12} />
+                        </Link>
+                      </div>
+                    </motion.div>
+                  )
+                })
+            }
           </div>
         </div>
       </section>
@@ -229,34 +293,38 @@ export default function Pricing() {
         <div className="container-custom">
           <SectionHeader badge="Compare Plans" title="Full Feature" titleHighlight="Comparison." />
           <div className="mt-12 overflow-x-auto">
-            <table className="w-full min-w-[700px]">
-              <thead>
-                <tr className="border-b border-white/[0.07]">
-                  <th className="text-left py-4 pr-6 text-sm font-semibold text-[#71717a] w-[35%]">Feature</th>
-                  {['Starter', 'Growth', 'Premium', 'Enterprise'].map(p => (
-                    <th key={p} className={`text-center py-4 px-4 text-sm font-bold ${p === 'Growth' ? 'text-orange-400' : 'text-white'}`}>{p}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {featureComparison.map(({ feature, starter, growth, premium, enterprise }, i) => (
-                  <tr key={feature} className={`border-b border-white/[0.04] ${i % 2 === 0 ? '' : 'bg-white/[0.01]'}`}>
-                    <td className="py-3.5 pr-6 text-sm text-[#a1a1aa]">{feature}</td>
-                    {[starter, growth, premium, enterprise].map((val, j) => (
-                      <td key={j} className="py-3.5 px-4 text-center">
-                        {val === true ? (
-                          <Check size={16} className="text-green-400 mx-auto" />
-                        ) : val === false ? (
-                          <span className="text-[#3f3f46] text-lg">—</span>
-                        ) : (
-                          <span className={`text-xs font-medium ${j === 1 ? 'text-orange-300' : 'text-[#a1a1aa]'}`}>{val}</span>
-                        )}
-                      </td>
+            {loading ? (
+              <div className="h-64 rounded-2xl border border-white/[0.06] bg-[#111113] animate-pulse" />
+            ) : (
+              <table className="w-full min-w-[700px]">
+                <thead>
+                  <tr className="border-b border-white/[0.07]">
+                    <th className="text-left py-4 pr-6 text-sm font-semibold text-[#71717a] w-[35%]">Feature</th>
+                    {['Starter', 'Growth', 'Premium', 'Enterprise'].map(p => (
+                      <th key={p} className={`text-center py-4 px-4 text-sm font-bold ${p === 'Growth' ? 'text-orange-400' : 'text-white'}`}>{p}</th>
                     ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {comparison.map(({ feature, starter, growth, premium, enterprise }, i) => (
+                    <tr key={feature} className={`border-b border-white/[0.04] ${i % 2 === 0 ? '' : 'bg-white/[0.01]'}`}>
+                      <td className="py-3.5 pr-6 text-sm text-[#a1a1aa]">{feature}</td>
+                      {[starter, growth, premium, enterprise].map((val, j) => (
+                        <td key={j} className="py-3.5 px-4 text-center">
+                          {val === true ? (
+                            <Check size={16} className="text-green-400 mx-auto" />
+                          ) : val === false ? (
+                            <span className="text-[#3f3f46] text-lg">—</span>
+                          ) : (
+                            <span className={`text-xs font-medium ${j === 1 ? 'text-orange-300' : 'text-[#a1a1aa]'}`}>{val}</span>
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
       </section>
@@ -273,7 +341,6 @@ export default function Pricing() {
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 flex-shrink-0">
-
               <Link to="/contact" className="btn-primary text-sm"><Zap size={16} />Book Enterprise Demo<ArrowRight size={15} /></Link>
             </div>
           </div>

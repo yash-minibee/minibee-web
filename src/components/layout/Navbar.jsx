@@ -89,12 +89,14 @@ export default function Navbar() {
 
             {/* CTA Buttons */}
             <div className="hidden lg:flex items-center gap-3">
-              <Link
-                to="/contact"
+              <a
+                href="https://miniapi.in/"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-sm font-medium text-[#a1a1aa] hover:text-white transition-colors px-3 py-2"
               >
                 Sign In
-              </Link>
+              </a>
               <Link
                 to="/contact"
                 className="btn-primary text-sm py-2 px-4"
@@ -168,9 +170,14 @@ export default function Navbar() {
                 ))}
               </nav>
               <div className="p-6 md:p-8 border-t border-white/[0.06] space-y-4">
-                <Link to="/contact" className="btn-secondary w-full justify-center text-sm py-3.5">
+                <a 
+                  href="https://miniapi.in/" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-secondary w-full justify-center text-sm py-3.5"
+                >
                   Sign In
-                </Link>
+                </a>
                 <Link to="/contact" className="btn-primary w-full justify-center text-sm py-3.5">
                   <Zap size={15} />
                   Book Demo

@@ -341,9 +341,130 @@ body {
 .wa-green { color: #25D366; }
 .wa-bg { background: #25D366; }
 
+/* ─── Infinite Marquee ─── */
+.marquee-container {
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  display: flex;
+  mask-image: linear-gradient(to right, transparent, white 20%, white 80%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, white 20%, white 80%, transparent);
+}
+.marquee-content {
+  display: flex;
+  flex-shrink: 0;
+  white-space: nowrap;
+  gap: 1.5rem;
+  animation: marquee 120s linear infinite;
+}
+.marquee-content-reverse {
+  display: flex;
+  flex-shrink: 0;
+  white-space: nowrap;
+  gap: 1.5rem;
+  animation: marquee 120s linear infinite reverse;
+}
+.marquee-content:hover, .marquee-content-reverse:hover {
+  animation-play-state: paused;
+}
+
 /* ─── Divider ─── */
   .section-divider {
     height: 1px;
     background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06) 30%, rgba(255,255,255,0.06) 70%, transparent);
   }
+}
+
+/* ─── Quill Editor Dark Mode styling ─── */
+.ql-toolbar.ql-snow {
+  border: 1px solid rgba(255,255,255,0.06) !important;
+  background: #0c0c0e !important;
+  border-top-left-radius: 1rem !important;
+  border-top-right-radius: 1rem !important;
+  padding: 0.75rem 1.25rem !important;
+}
+.ql-container.ql-snow {
+  border: 1px solid rgba(255,255,255,0.06) !important;
+  border-top: none !important;
+  background: #070708 !important;
+  border-bottom-left-radius: 1rem !important;
+  border-bottom-right-radius: 1rem !important;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
+  color: #fafafa !important;
+  font-size: 0.9rem !important;
+}
+.ql-editor {
+  min-height: 360px !important;
+  max-height: 480px !important;
+  line-height: 1.7 !important;
+}
+.ql-editor.ql-blank::before {
+  color: #3f3f46 !important;
+  font-style: normal !important;
+}
+.ql-snow .ql-stroke {
+  stroke: #a1a1aa !important;
+}
+.ql-snow .ql-fill {
+  fill: #a1a1aa !important;
+}
+.ql-snow .ql-picker {
+  color: #a1a1aa !important;
+}
+.ql-snow .ql-picker-options {
+  background-color: #111113 !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  border-radius: 0.5rem !important;
+}
+.ql-snow .ql-picker-item:hover, .ql-snow .ql-picker-label:hover {
+  color: #f85a22 !important;
+}
+.ql-snow.ql-toolbar button:hover .ql-stroke, 
+.ql-snow.ql-toolbar button.ql-active .ql-stroke {
+  stroke: #f85a22 !important;
+}
+.ql-snow.ql-toolbar button:hover .ql-fill, 
+.ql-snow.ql-toolbar button.ql-active .ql-fill {
+  fill: #f85a22 !important;
+}
+
+/* ─── Quill Editor Content & Prose Paste Clean Overrides ─── */
+.prose *[style*="color: rgb(0, 0, 0)"],
+.prose *[style*="color: rgb(0,0,0)"],
+.prose *[style*="color:#000000"],
+.prose *[style*="color: #000"],
+.prose *[style*="color: rgb(34, 34, 34)"],
+.prose *[style*="color:rgb(34,34,34)"],
+.prose *[style*="color: #222"] {
+  color: inherit !important;
+}
+
+.prose *[style*="font-family"] {
+  font-family: inherit !important;
+}
+
+.ql-editor *[style*="color: rgb(0, 0, 0)"],
+.ql-editor *[style*="color: rgb(0,0,0)"],
+.ql-editor *[style*="color:#000000"],
+.ql-editor *[style*="color: #000"],
+.ql-editor *[style*="color: rgb(34, 34, 34)"],
+.ql-editor *[style*="color:rgb(34,34,34)"] {
+  color: inherit !important;
+}
+
+.ql-editor *[style*="font-family"] {
+  font-family: inherit !important;
+}
+
+/* ─── Public Blog Content: Override dark inline colors from Quill HTML ─── */
+.blog-content-override *[style*="color"] {
+  color: inherit !important;
+}
+
+.blog-content-override *[style*="background-color"] {
+  background-color: transparent !important;
+}
+
+.blog-content-override *[style*="font-family"] {
+  font-family: inherit !important;
 }
