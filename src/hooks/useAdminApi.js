@@ -1,5 +1,5 @@
 // Central API config — calls individual PHP files directly
-export const API_BASE = 'http://localhost:8080/api'
+export const API_BASE = 'https://api.minibee.tech/api'
 
 export const getImageUrl = (path) => {
   if (!path) return ''
