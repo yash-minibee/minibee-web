@@ -1,7 +1,21 @@
 <?php
 // ─── CORS Headers (only when running via web server, not CLI) ─────────────────
 if (PHP_SAPI !== 'cli') {
-    header("Access-Control-Allow-Origin: https://minibee.tech");
+    $allowed_origins = [
+        'https://minibee.tech',
+        'https://www.minibee.tech',
+        'http://localhost:3000',
+        'http://localhost:5173',
+        'http://localhost:8080'
+    ];
+    
+    $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+    if (in_array($origin, $allowed_origins)) {
+        header("Access-Control-Allow-Origin: " . $origin);
+    } else {
+        header("Access-Control-Allow-Origin: https://minibee.tech");
+    }
+
     header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
     header("Access-Control-Allow-Headers: Content-Type, Authorization");
     header("Content-Type: application/json");
