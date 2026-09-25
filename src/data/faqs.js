@@ -31,7 +31,7 @@ export const faqs = {
       a: 'Yes. We offer a 14-day free trial on our Starter and Growth plans with no credit card required. Enterprise clients get a personalized demo and proof-of-concept setup.',
     },
     {
-      q: 'What happens if I exceed my monthly message limit?',
+      q: 'What happens if I exceed my quarterly message limit?',
       a: 'We\'ll notify you when you reach 80% of your limit. You can upgrade your plan at any time or purchase additional message credits without downtime.',
     },
     {
@@ -40,7 +40,7 @@ export const faqs = {
     },
     {
       q: 'Can I cancel my subscription anytime?',
-      a: 'Yes. All monthly subscriptions can be cancelled at any time. Annual plans are refundable on a pro-rata basis within the first 30 days.',
+      a: 'Yes. All quarterly subscriptions can be cancelled at any time. Annual plans are refundable on a pro-rata basis within the first 30 days.',
     },
   ],
 }

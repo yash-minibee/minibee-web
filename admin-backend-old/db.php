@@ -35,22 +35,20 @@ $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 // ─── Schema Init (runs only if tables don't exist) ────────────────────────────
 $db->exec("
   CREATE TABLE IF NOT EXISTS pricing_plans (
-    id            INTEGER PRIMARY KEY AUTOINCREMENT,
-    name          TEXT NOT NULL,
-    tagline       TEXT,
-    quarterly_usd REAL,
-    yearly_usd    REAL,
-    quarterly_inr REAL,
-    yearly_inr    REAL,
-    monthly_usd   REAL,
-    monthly_inr   REAL,
-    popular       INTEGER DEFAULT 0,
-    cta           TEXT DEFAULT 'Get Started',
-    href          TEXT DEFAULT '/contact',
-    features      TEXT DEFAULT '[]',
-    not_included  TEXT DEFAULT '[]',
-    sort_order    INTEGER DEFAULT 0,
-    created_at    DATETIME DEFAULT CURRENT_TIMESTAMP
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    name        TEXT NOT NULL,
+    tagline     TEXT,
+    monthly_usd REAL,
+    yearly_usd  REAL,
+    monthly_inr REAL,
+    yearly_inr  REAL,
+    popular     INTEGER DEFAULT 0,
+    cta         TEXT DEFAULT 'Get Started',
+    href        TEXT DEFAULT '/contact',
+    features    TEXT DEFAULT '[]',
+    not_included TEXT DEFAULT '[]',
+    sort_order  INTEGER DEFAULT 0,
+    created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
   );
 
   CREATE TABLE IF NOT EXISTS feature_comparison (
@@ -159,27 +157,6 @@ try {
     $db->exec("UPDATE portfolio_categories SET icon_key = 'Palette' WHERE name = 'UI/UX Design'");
 }
 
-// Migration: Add quarterly_usd and quarterly_inr columns to pricing_plans if not exists
-try {
-    $db->query("SELECT quarterly_usd FROM pricing_plans LIMIT 1");
-} catch (PDOException $e) {
-    try {
-        $db->exec("ALTER TABLE pricing_plans ADD COLUMN quarterly_usd REAL");
-        $db->exec("ALTER TABLE pricing_plans ADD COLUMN quarterly_inr REAL");
-    } catch (PDOException $ignored) {}
-    // Copy existing monthly values to quarterly if present
-    try {
-        $db->exec("UPDATE pricing_plans SET quarterly_usd = monthly_usd WHERE quarterly_usd IS NULL AND monthly_usd IS NOT NULL");
-        $db->exec("UPDATE pricing_plans SET quarterly_inr = monthly_inr WHERE quarterly_inr IS NULL AND monthly_inr IS NOT NULL");
-    } catch (PDOException $ignored) {}
-}
-
-// Update comparison table labels if needed
-try {
-    $db->exec("UPDATE feature_comparison SET feature = 'Quarterly Bot Triggers' WHERE feature = 'Monthly Bot Triggers'");
-    $db->exec("UPDATE feature_comparison SET starter = REPLACE(starter, '/ Month', '/ Quarter'), growth = REPLACE(growth, '/ Month', '/ Quarter'), premium = REPLACE(premium, '/ Month', '/ Quarter') WHERE feature = 'Templates Allowed' OR feature = 'Quarterly Bot Triggers'");
-} catch (PDOException $e) {}
-
 // Seed default categories if empty
 $db->exec("
   INSERT OR IGNORE INTO portfolio_categories (name, sort_order, icon_key) VALUES ('Corporate Website', 1, 'Globe');
@@ -187,6 +164,5 @@ $db->exec("
   INSERT OR IGNORE INTO portfolio_categories (name, sort_order, icon_key) VALUES ('Web Application', 3, 'Code2');
   INSERT OR IGNORE INTO portfolio_categories (name, sort_order, icon_key) VALUES ('UI/UX Design', 4, 'Palette');
 ");
-
 
 

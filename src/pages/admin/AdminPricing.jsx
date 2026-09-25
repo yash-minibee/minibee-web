@@ -3,10 +3,16 @@ import { Plus, Edit2, Trash2, X, Check, Star, Copy } from 'lucide-react'
 import { api } from '../../hooks/useAdminApi'
 
 const EMPTY_PLAN = {
-  name: '', tagline: '', monthly_usd: '', yearly_usd: '',
-  monthly_inr: '', yearly_inr: '', popular: false,
+  name: '', tagline: '', quarterly_usd: '', yearly_usd: '',
+  quarterly_inr: '', yearly_inr: '', popular: false,
   cta: 'Get Started', href: '/contact',
   features: [], not_included: [],
+}
+
+const cleanPrice = (val) => {
+  if (val === null || val === undefined || val === '') return null
+  const num = Number(val)
+  return isNaN(num) ? val : (num % 1 === 0 ? Math.round(num) : num)
 }
 
 function Badge({ children, color = 'orange' }) {
@@ -45,7 +51,16 @@ function FeatureListEditor({ label, items, onChange }) {
 
 
 function PlanModal({ plan, onClose, onSave }) {
-  const [form, setForm] = useState(plan || EMPTY_PLAN)
+  const [form, setForm] = useState(() => {
+    if (!plan) return EMPTY_PLAN
+    return {
+      ...plan,
+      quarterly_usd: plan.quarterly_usd ?? plan.monthly_usd ?? '',
+      quarterly_inr: plan.quarterly_inr ?? plan.monthly_inr ?? '',
+      yearly_usd: plan.yearly_usd ?? '',
+      yearly_inr: plan.yearly_inr ?? '',
+    }
+  })
   const [saving, setSaving] = useState(false)
 
   const set = (key, val) => setForm(f => ({ ...f, [key]: val }))
@@ -88,10 +103,10 @@ function PlanModal({ plan, onClose, onSave }) {
           {/* Prices */}
           <div className="grid grid-cols-2 gap-4">
             {[
-              { key: 'monthly_usd', label: 'Monthly USD ($)' },
-              { key: 'yearly_usd',  label: 'Yearly USD ($/mo)' },
-              { key: 'monthly_inr', label: 'Monthly INR (₹)' },
-              { key: 'yearly_inr',  label: 'Yearly INR (₹/mo)' },
+              { key: 'quarterly_usd', label: 'Quarterly USD ($)' },
+              { key: 'yearly_usd',    label: 'Yearly USD ($/year)' },
+              { key: 'quarterly_inr', label: 'Quarterly INR (₹)' },
+              { key: 'yearly_inr',    label: 'Yearly INR (₹/year)' },
             ].map(({ key, label }) => (
               <div key={key}>
                 <label className="block text-xs font-semibold text-[#a1a1aa] mb-1.5 uppercase tracking-wider">{label}</label>
@@ -163,12 +178,16 @@ export default function AdminPricing() {
   useEffect(() => { loadPlans() }, [])
 
   const handleSave = async (form) => {
+    const q_usd = form.quarterly_usd === '' ? null : parseFloat(form.quarterly_usd)
+    const q_inr = form.quarterly_inr === '' ? null : parseFloat(form.quarterly_inr)
     const payload = {
       ...form,
-      monthly_usd:  form.monthly_usd  === '' ? null : parseFloat(form.monthly_usd),
-      yearly_usd:   form.yearly_usd   === '' ? null : parseFloat(form.yearly_usd),
-      monthly_inr:  form.monthly_inr  === '' ? null : parseFloat(form.monthly_inr),
-      yearly_inr:   form.yearly_inr   === '' ? null : parseFloat(form.yearly_inr),
+      quarterly_usd: q_usd,
+      yearly_usd:    form.yearly_usd   === '' ? null : parseFloat(form.yearly_usd),
+      quarterly_inr: q_inr,
+      yearly_inr:    form.yearly_inr   === '' ? null : parseFloat(form.yearly_inr),
+      monthly_usd:   q_usd,
+      monthly_inr:   q_inr,
       // Filter out blank lines left from textarea newlines
       features:     (form.features     || []).map(f => f.trim()).filter(Boolean),
       not_included: (form.not_included || []).map(f => f.trim()).filter(Boolean),
@@ -190,13 +209,17 @@ export default function AdminPricing() {
   const handleClone = async (plan) => {
     setLoading(true)
     try {
+      const q_usd = plan.quarterly_usd ?? plan.monthly_usd
+      const q_inr = plan.quarterly_inr ?? plan.monthly_inr
       const cloneData = {
         name: `${plan.name} (Copy)`,
         tagline: plan.tagline,
-        monthly_usd: plan.monthly_usd,
+        quarterly_usd: q_usd,
         yearly_usd: plan.yearly_usd,
-        monthly_inr: plan.monthly_inr,
+        quarterly_inr: q_inr,
         yearly_inr: plan.yearly_inr,
+        monthly_usd: q_usd,
+        monthly_inr: q_inr,
         popular: plan.popular ? 1 : 0,
         cta: plan.cta,
         href: plan.href,
@@ -255,8 +278,8 @@ export default function AdminPricing() {
                 </div>
                 <p className="text-xs text-[#71717a] mb-3">{plan.tagline}</p>
                 <div className="flex flex-wrap gap-3 text-xs">
-                  <span className="text-[#a1a1aa]">USD: <strong className="text-white">${plan.monthly_usd ?? 'Custom'}/mo</strong></span>
-                  <span className="text-[#a1a1aa]">INR: <strong className="text-white">₹{plan.monthly_inr ?? 'Custom'}/mo</strong></span>
+                  <span className="text-[#a1a1aa]">USD: <strong className="text-white">{cleanPrice(plan.quarterly_usd ?? plan.monthly_usd) !== null ? `$${cleanPrice(plan.quarterly_usd ?? plan.monthly_usd)}/quarter` : 'Custom'}</strong></span>
+                  <span className="text-[#a1a1aa]">INR: <strong className="text-white">{cleanPrice(plan.quarterly_inr ?? plan.monthly_inr) !== null ? `₹${cleanPrice(plan.quarterly_inr ?? plan.monthly_inr)}/quarter` : 'Custom'}</strong></span>
                   <span className="text-[#a1a1aa]">Features: <strong className="text-white">{plan.features?.length ?? 0}</strong></span>
                 </div>
               </div>

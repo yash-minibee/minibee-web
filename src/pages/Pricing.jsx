@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, useInView, AnimatePresence } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { ArrowRight, Zap, Check, X, ChevronDown, Star, Users, ShoppingCart, Share2 } from 'lucide-react'
+import { ArrowRight, Zap, Check, X, ChevronDown, Star, Users, ShoppingCart, Share2, Info } from 'lucide-react'
 import { SectionHeader } from '../components/common/SectionHeader'
 import { faqs } from '../data/faqs'
 import { api } from '../hooks/useAdminApi'
@@ -14,10 +14,17 @@ const ADDON_ICONS = {
   'social-channels':<Share2 size={20} />,
 }
 
+const cleanPrice = (val) => {
+  if (val === null || val === undefined || val === '') return null
+  const num = Number(val)
+  return isNaN(num) ? val : (num % 1 === 0 ? Math.round(num) : num)
+}
+
 function PricingCard({ plan, isYearly, isINR }) {
-  const price = isINR
-    ? (isYearly ? plan.inrYearlyPrice : plan.inrMonthlyPrice)
-    : (isYearly ? plan.yearlyPrice : plan.monthlyPrice)
+  const rawPrice = isINR
+    ? (isYearly ? plan.inrYearlyPrice : (plan.inrQuarterlyPrice ?? plan.inrMonthlyPrice))
+    : (isYearly ? plan.yearlyPrice : (plan.quarterlyPrice ?? plan.monthlyPrice))
+  const price = cleanPrice(rawPrice)
   const symbol = isINR ? '₹' : '$'
 
   return (
@@ -46,15 +53,12 @@ function PricingCard({ plan, isYearly, isINR }) {
         </div>
 
         <div className="mb-7 h-[68px] flex flex-col justify-end">
-          {price ? (
+          {price !== null && price !== undefined ? (
             <div>
               <div className="flex items-end gap-2">
                 <span className="text-5xl font-black text-white leading-none">{symbol}{price}</span>
-                <span className="text-[#71717a] mb-1">/mo</span>
+                <span className="text-[#71717a] mb-1">{isYearly ? '/year' : '/quarter'}</span>
               </div>
-              {isYearly && (
-                <div className="text-green-400 text-xs mt-1.5 font-bold leading-none">Applicable in Annual Pack</div>
-              )}
             </div>
           ) : (
             <div className="text-3xl font-black text-white leading-none pb-1">Custom</div>
@@ -112,18 +116,20 @@ export default function Pricing() {
       .then(([plansRes, compRes, addonsRes]) => {
         if (plansRes.success) {
           setPlans(plansRes.data.map(item => ({
-            id:             item.id,
-            name:           item.name,
-            tagline:        item.tagline,
-            monthlyPrice:   item.monthly_usd  ?? null,
-            yearlyPrice:    item.yearly_usd   ?? null,
-            inrMonthlyPrice:item.monthly_inr  ?? null,
-            inrYearlyPrice: item.yearly_inr   ?? null,
-            popular:        Boolean(item.popular),
-            cta:            item.cta,
-            href:           item.href,
-            features:       Array.isArray(item.features)     ? item.features     : [],
-            notIncluded:    Array.isArray(item.not_included)  ? item.not_included : [],
+            id:                item.id,
+            name:              item.name,
+            tagline:           item.tagline,
+            quarterlyPrice:    item.quarterly_usd ?? item.monthly_usd ?? null,
+            yearlyPrice:       item.yearly_usd    ?? null,
+            inrQuarterlyPrice: item.quarterly_inr ?? item.monthly_inr ?? null,
+            inrYearlyPrice:    item.yearly_inr    ?? null,
+            monthlyPrice:      item.monthly_usd   ?? item.quarterly_usd ?? null,
+            inrMonthlyPrice:   item.monthly_inr   ?? item.quarterly_inr ?? null,
+            popular:           Boolean(item.popular),
+            cta:               item.cta,
+            href:              item.href,
+            features:          Array.isArray(item.features)     ? item.features     : [],
+            notIncluded:       Array.isArray(item.not_included)  ? item.not_included : [],
           })))
         }
         if (compRes.success) {
@@ -186,7 +192,7 @@ export default function Pricing() {
           onClick={() => setIsYearly(!isYearly)}
           className="flex items-center justify-center gap-4 cursor-pointer outline-none"
         >
-          <span className={`text-sm font-medium transition-colors ${!isYearly ? 'text-white' : 'text-[#71717a]'}`}>Monthly</span>
+          <span className={`text-sm font-medium transition-colors ${!isYearly ? 'text-white' : 'text-[#71717a]'}`}>Quarterly</span>
           <div className={`relative w-14 h-7 rounded-full transition-colors duration-300 ${isYearly ? 'bg-orange-500' : 'bg-white/20'}`}>
             <motion.div
               animate={{ x: isYearly ? 28 : 4 }}
@@ -196,7 +202,7 @@ export default function Pricing() {
           </div>
           <span className={`text-sm font-medium transition-colors ${isYearly ? 'text-white' : 'text-[#71717a]'}`}>
             Yearly
-            <span className="ml-2 text-xs text-green-400 font-bold">Save 20%</span>
+            <span className="ml-2 text-xs text-green-400 font-bold">Save upto 20%</span>
           </span>
         </button>
       </section>
@@ -204,14 +210,19 @@ export default function Pricing() {
       {/* Pricing Cards */}
       <section className="pb-20 " ref={ref}>
         <div className="container-custom">
+          <p className="text-center text-xs text-[#71717a] mb-6 flex items-center justify-center gap-1.5">
+            <Info size={14} className="text-[#52525b] flex-shrink-0" />
+            Pricing and features may change depending on Meta&apos;s policies, pricing, and updates.
+          </p>
+
           {loading ? (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-8">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
               {[...Array(4)].map((_, i) => (
                 <div key={i} className="h-[480px] rounded-2xl border border-white/[0.06] bg-[#111113] animate-pulse" />
               ))}
             </div>
           ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-8">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
               {plans.map((plan, i) => (
                 <motion.div
                   key={plan.id}
@@ -245,7 +256,8 @@ export default function Pricing() {
                 ))
               : addons.map((addon) => {
                   const hasPrice = addon.price_usd !== null && addon.price_usd !== undefined
-                  const price = isINR ? addon.price_inr : addon.price_usd
+                  const rawPrice = isINR ? addon.price_inr : addon.price_usd
+                  const price = cleanPrice(rawPrice)
                   const currencySymbol = isINR ? '₹' : '$'
 
                   return (

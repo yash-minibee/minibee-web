@@ -26,18 +26,18 @@ if (already_seeded($db, 'pricing_plans')) {
 } else {
     $plans = [
         [
-            'name'          => 'Starter',
-            'tagline'       => 'Perfect for small businesses getting started',
-            'quarterly_usd' => 50,
-            'yearly_usd'    => 41,
-            'quarterly_inr' => 1200,
-            'yearly_inr'    => 1000,
-            'popular'       => 0,
-            'cta'           => 'Get Started',
-            'href'          => '/contact',
-            'sort_order'    => 1,
-            'features'      => json_encode([
-                '5 Templates/Quarter',
+            'name'        => 'Starter',
+            'tagline'     => 'Perfect for small businesses getting started',
+            'monthly_usd' => 50,
+            'yearly_usd'  => 41,
+            'monthly_inr' => 1200,
+            'yearly_inr'  => 1000,
+            'popular'     => 0,
+            'cta'         => 'Get Started',
+            'href'        => '/contact',
+            'sort_order'  => 1,
+            'features'    => json_encode([
+                '5 Tamplates/Month',
                 'Support on Chat',
                 'Working Days Support (Mon-Fri)',
                 '1 Number',
@@ -45,7 +45,7 @@ if (already_seeded($db, 'pricing_plans')) {
                 'Schedule Campain',
                 '5 Msg/Sec',
             ]),
-            'not_included'  => json_encode([
+            'not_included' => json_encode([
                 'ChatBots',
                 'ChatBox',
                 'Extra User Access',
@@ -54,18 +54,18 @@ if (already_seeded($db, 'pricing_plans')) {
             ]),
         ],
         [
-            'name'          => 'Growth',
-            'tagline'       => 'For growing teams that need more power',
-            'quarterly_usd' => 85,
-            'yearly_usd'    => 70,
-            'quarterly_inr' => 2000,
-            'yearly_inr'    => 1666,
-            'popular'       => 1,
-            'cta'           => 'Get Started',
-            'href'          => '/contact',
-            'sort_order'    => 2,
-            'features'      => json_encode([
-                '12 Templates/Quarter',
+            'name'        => 'Growth',
+            'tagline'     => 'For growing teams that need more power',
+            'monthly_usd' => 85,
+            'yearly_usd'  => 70,
+            'monthly_inr' => 2000,
+            'yearly_inr'  => 1666,
+            'popular'     => 1,
+            'cta'         => 'Get Started',
+            'href'        => '/contact',
+            'sort_order'  => 2,
+            'features'    => json_encode([
+                '12 Tamplates/Month',
                 'Support on Chat',
                 'Working Days Support (Mon-Fri)',
                 '2 Number',
@@ -76,23 +76,23 @@ if (already_seeded($db, 'pricing_plans')) {
                 'Upto 20 ChatBox',
                 '1 Extra User',
                 '1 Paid API Integration',
-                '1 lakh Bot Trigger/Quarter',
+                '1 lakh Bot Trigger/Month',
             ]),
-            'not_included'  => json_encode([]),
+            'not_included' => json_encode([]),
         ],
         [
-            'name'          => 'Premium',
-            'tagline'       => 'Comprehensive solution for established businesses',
-            'quarterly_usd' => 170,
-            'yearly_usd'    => 141,
-            'quarterly_inr' => 4000,
-            'yearly_inr'    => 3333,
-            'popular'       => 0,
-            'cta'           => 'Get Started',
-            'href'          => '/contact',
-            'sort_order'    => 3,
-            'features'      => json_encode([
-                '30 Templates/Quarter',
+            'name'        => 'Premium',
+            'tagline'     => 'Comprehensive solution for established businesses',
+            'monthly_usd' => 170,
+            'yearly_usd'  => 141,
+            'monthly_inr' => 4000,
+            'yearly_inr'  => 3333,
+            'popular'     => 0,
+            'cta'         => 'Get Started',
+            'href'        => '/contact',
+            'sort_order'  => 3,
+            'features'    => json_encode([
+                '30 Tamplates/Month',
                 'Support on Call',
                 'Working Days Support (Mon-Fri)',
                 '4 Number',
@@ -103,22 +103,22 @@ if (already_seeded($db, 'pricing_plans')) {
                 'Upto 70 ChatBox',
                 '3 Extra User',
                 '1 Free API Integration',
-                '3 lakh Bot Trigger/Quarter',
+                '3 lakh Bot Trigger/Month',
             ]),
-            'not_included'  => json_encode([]),
+            'not_included' => json_encode([]),
         ],
         [
-            'name'          => 'Enterprise',
-            'tagline'       => 'Tailored for large enterprises at scale',
-            'quarterly_usd' => null,
-            'yearly_usd'    => null,
-            'quarterly_inr' => null,
-            'yearly_inr'    => null,
-            'popular'       => 0,
-            'cta'           => 'Get Started',
-            'href'          => '/contact',
-            'sort_order'    => 4,
-            'features'      => json_encode([
+            'name'        => 'Enterprise',
+            'tagline'     => 'Tailored for large enterprises at scale',
+            'monthly_usd' => null,
+            'yearly_usd'  => null,
+            'monthly_inr' => null,
+            'yearly_inr'  => null,
+            'popular'     => 0,
+            'cta'         => 'Get Started',
+            'href'        => '/contact',
+            'sort_order'  => 4,
+            'features'    => json_encode([
                 'Unlimited WhatsApp Numbers',
                 'Unlimited Messages',
                 'Custom AI Model Training',
@@ -130,32 +130,30 @@ if (already_seeded($db, 'pricing_plans')) {
                 'Security Audit',
                 'Custom Legal Agreements',
             ]),
-            'not_included'  => json_encode([]),
+            'not_included' => json_encode([]),
         ],
     ];
 
     $stmt = $db->prepare("
         INSERT INTO pricing_plans
-            (name, tagline, quarterly_usd, yearly_usd, quarterly_inr, yearly_inr, monthly_usd, monthly_inr, popular, cta, href, sort_order, features, not_included)
+            (name, tagline, monthly_usd, yearly_usd, monthly_inr, yearly_inr, popular, cta, href, sort_order, features, not_included)
         VALUES
-            (:name, :tagline, :quarterly_usd, :yearly_usd, :quarterly_inr, :yearly_inr, :monthly_usd, :monthly_inr, :popular, :cta, :href, :sort_order, :features, :not_included)
+            (:name, :tagline, :monthly_usd, :yearly_usd, :monthly_inr, :yearly_inr, :popular, :cta, :href, :sort_order, :features, :not_included)
     ");
     foreach ($plans as $p) {
         $stmt->execute([
-            ':name'          => $p['name'],
-            ':tagline'       => $p['tagline'],
-            ':quarterly_usd' => $p['quarterly_usd'],
-            ':yearly_usd'    => $p['yearly_usd'],
-            ':quarterly_inr' => $p['quarterly_inr'],
-            ':yearly_inr'    => $p['yearly_inr'],
-            ':monthly_usd'   => $p['quarterly_usd'],
-            ':monthly_inr'   => $p['quarterly_inr'],
-            ':popular'       => $p['popular'],
-            ':cta'           => $p['cta'],
-            ':href'          => $p['href'],
-            ':sort_order'    => $p['sort_order'],
-            ':features'      => $p['features'],
-            ':not_included'  => $p['not_included'],
+            ':name'        => $p['name'],
+            ':tagline'     => $p['tagline'],
+            ':monthly_usd' => $p['monthly_usd'],
+            ':yearly_usd'  => $p['yearly_usd'],
+            ':monthly_inr' => $p['monthly_inr'],
+            ':yearly_inr'  => $p['yearly_inr'],
+            ':popular'     => $p['popular'],
+            ':cta'         => $p['cta'],
+            ':href'        => $p['href'],
+            ':sort_order'  => $p['sort_order'],
+            ':features'    => $p['features'],
+            ':not_included'=> $p['not_included'],
         ]);
     }
     $log[] = "[OK] pricing_plans — inserted " . count($plans) . " plans";
@@ -168,18 +166,18 @@ if (already_seeded($db, 'feature_comparison')) {
     $log[] = "[SKIP] feature_comparison — already has data";
 } else {
     $rows = [
-        ['Templates Allowed',      '5 / Quarter',       '12 / Quarter',        '30 / Quarter',        'Unlimited',     1],
-        ['Support Channel',        'Chat Support',      'Chat Support',        'Call Support',        'Call Support',  2],
-        ['Support Schedule',       'Mon - Fri',         'Mon - Fri',           'Mon - Fri',           'Mon-Fri',       3],
-        ['WhatsApp Numbers',       '1 Number',          '2 Numbers',           '4 Numbers',           'Max Limit',     4],
-        ['Display Names',          '1 Name',            '2 Names',             '4 Names',             'Max Limit',     5],
-        ['Schedule Campaigns',     'true',              'true',                'true',                'true',          6],
-        ['Messaging Speed',        '5 Msg/Sec',         '10 Msg/Sec',          '20 Msg/Sec',          'Max Limit',     7],
-        ['Chatbots Included',      'false',             '3 ChatBots',          '8 Normal OR 1 AI',    'Customized ',   8],
-        ['ChatBox Access',         'false',             'Up to 20',            'Up to 70',            'Max Limit',     9],
-        ['Extra User Seats',       'false',             '1 Extra User',        '3 Extra Users',       'Customized',    10],
-        ['API Integrations',       'false',             '1 Paid Integration',  '1 Free Integration',  'Customized',    11],
-        ['Quarterly Bot Triggers', 'false',             '1 Lakh / Quarter',    '3 Lakh / Quarter',    'Max Limit',     12],
+        ['Templates Allowed',    '5 / Month',        '12 / Month',          '30 / Month',         'Unlimited',     1],
+        ['Support Channel',      'Chat Support',      'Chat Support',        'Call Support',        'Call Support',  2],
+        ['Support Schedule',     'Mon - Fri',         'Mon - Fri',           'Mon - Fri',           'Mon-Fri',       3],
+        ['WhatsApp Numbers',     '1 Number',          '2 Numbers',           '4 Numbers',           'Max Limit',     4],
+        ['Display Names',        '1 Name',            '2 Names',             '4 Names',             'Max Limit',     5],
+        ['Schedule Campaigns',   'true',              'true',                'true',                'true',          6],
+        ['Messaging Speed',      '5 Msg/Sec',         '10 Msg/Sec',          '20 Msg/Sec',          'Max Limit',     7],
+        ['Chatbots Included',    'false',             '3 ChatBots',          '8 Normal OR 1 AI',    'Customized ',   8],
+        ['ChatBox Access',       'false',             'Up to 20',            'Up to 70',            'Max Limit',     9],
+        ['Extra User Seats',     'false',             '1 Extra User',        '3 Extra Users',       'Customized',    10],
+        ['API Integrations',     'false',             '1 Paid Integration',  '1 Free Integration',  'Customized',    11],
+        ['Monthly Bot Triggers', 'false',             '1 Lakh / Month',      '3 Lakh / Month',      'Max Limit',     12],
     ];
 
     $stmt = $db->prepare("

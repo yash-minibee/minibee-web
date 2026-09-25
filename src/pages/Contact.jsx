@@ -206,7 +206,7 @@ export default function Contact() {
                 </div>
                 <h3 className="text-lg font-bold text-white mb-2">Instant Chat on WhatsApp</h3>
                 <p className="text-sm text-[#a1a1aa] mb-5">See Minibee in action with a live 30-minute walkthrough tailored to your business needs.</p>
-                <a href="https://wa.me/918799167809?text=Hi%20Minibee!%20I%20would%20like%20to%20book%20a%20free%20demo." target="_blank" rel="noopener noreferrer" className="btn-primary w-full justify-center text-sm">
+                <a abw-widget-id="01425f67-f87b-4a71-af0c-148b631344d4" href="" target="_blank" rel="noopener noreferrer" className="btn-primary w-full justify-center text-sm">
                   <FaWhatsapp size={16} className="text-white" />
                   WhatsApp Now
                 </a>

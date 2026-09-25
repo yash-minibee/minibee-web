@@ -1,5 +1,6 @@
 // Central API config — calls individual PHP files directly
 export const API_BASE = 'https://api.minibee.tech/api'
+// export const API_BASE = 'http://localhost:8080/api'
 
 export const getImageUrl = (path) => {
   if (!path) return ''
@@ -47,7 +48,7 @@ export const api = {
   pricing: {
     list: () => fetch(`${API_BASE}/pricing.php?action=list`).then(r => r.json()),
     create: (data) => fetch(`${API_BASE}/pricing.php?action=create`, {
-      method: 'POST',
+      method: 'POST', 
       headers: getHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(data),
     }).then(r => r.json()),
@@ -102,7 +103,7 @@ export const api = {
       body: JSON.stringify({ id }),
     }).then(r => r.json()),
   },
-
+  
   // ─── Addons ───────────────────────────────────────────────────────────────
   addons: {
     list: () => fetch(`${API_BASE}/addons.php?action=list`).then(r => r.json()),
